@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography" defer></script>
+    <meta charset="UTF-8">
+    <title>Swift Arena | Login</title>
+</head>
+<body>
+
+<div class="hero bg-base-200 min-h-screen">
+    <div class="hero-content text-center">
+        <div class="max-w-md">
+            <h1 class="text-5xl font-bold">Swift Arena</h1>
+            <p class="py-6">
+                Bem-vindo ao Swift Arena! Sua plataforma de aprendizado de programação interativa.
+                Faça login com seu e-mail educacional para começar sua jornada.
+            </p>
+            <div th:if="${error}" role="alert" class="alert alert-error">
+                <span th:text="${error}"></span>
+            </div>
+            <form th:action="@{/login}" method="post" class="py-6">
+                <fieldset class="fieldset bg-base-300 border-base-300 rounded-box w-md border p-4">
+                    <legend class="fieldset-legend">E-mail</legend>
+                    <input name="username" type="email" class="input w-full" placeholder="seuemail@senacsp.edu.br" value="joao@senacsp.edu.br" />
+                </fieldset>
+                <fieldset class="fieldset bg-base-300 border-base-300 rounded-box w-md border p-4">
+                    <legend class="fieldset-legend">Senha</legend>
+                    <input name="password" type="password" class="input w-full" value="123" />
+                </fieldset>
+                <button type="submit" class="btn btn-primary m-4 w-xs">Entrar</button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

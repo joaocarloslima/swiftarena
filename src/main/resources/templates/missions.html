@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography" defer></script>
+    <meta charset="UTF-8">
+    <title>Swift Arena | Missions</title>
+</head>
+<body>
+
+<nav th:replace="~{layout/components :: navbar}"></nav>
+
+<main>
+    <div role="tablist" class="tabs tabs-box">
+        <a th:each="lesson : ${lessons}"
+           th:if="${lesson.active}"
+           role="tab"
+           class="tab"
+           th:text="${'Lesson ' + lesson.number}"
+           th:href="@{'/missions/lessons/' + ${lesson.id}}"
+           th:classappend="${lesson.id == activeLesson} ? ' tab-active' : ''">
+        </a>
+
+        <span th:each="lesson : ${lessons}"
+              th:unless="${lesson.active}"
+              role="tab"
+              class="tab text-gray-400 cursor-not-allowed flex items-center gap-2">
+            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span th:text="${'Lesson ' + lesson.number}"></span>
+        </span>
+    </div>
+
+    <div th:if="${missions}" class="grid place-items-center">
+        <ul class="steps">
+            <li th:each="mission : ${missions}"
+                class="step"
+                th:classappend="${mission.completed} ? 'step-success' : (${mission.haveSubmission} ? 'step-warning' : '')">
+                <a
+                        th:href="@{'/missions/lessons/' + ${mission.lesson.id} + '/' + ${mission.id}}"
+                        th:text="${mission.title}"
+                >
+
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div th:if="${mission}" class="flex w-full flex-col lg:flex-row p-8">
+        <div class="card bg-base-300 rounded-box grid grow p-4 lg:max-w-1/2">
+            <h3 class="text-2xl text-primary font-bold w-full text-center" th:text="${mission.title}"></h3>
+            <ul class="timeline mx-auto">
+                <li th:each="submission : ${submissions}">
+                    <div class="timeline-middle">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                class="h-5 w-5"
+                                th:classappend="${submission.passed} ? 'text-success' : 'text-error'"
+                        >
+                            <path
+                                    fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                    clip-rule="evenodd"
+                            />
+                        </svg>
+                    </div>
+                    <hr />
+                </li>
+            </ul>
+            <div id="description-markdown" class="prose max-w-none" th:attr="data-markdown=${mission.descriptionMarkdown}" ></div>
+        </div>
+        <div class="divider lg:divider-horizontal"></div>
+        <div class="card bg-base-300 rounded-box flex flex-col gap-4 items-start p-4 w-full lg:max-w-1/2">
+            <form method="post" th:action="${'/missions'}" class="w-full">
+                <input type="hidden" name="missionId" th:value="${mission.id}" />
+                <textarea id="swift-editor" name="code" style="white-space: pre-wrap;" th:text="${code}"></textarea>
+                <button type="submit" id="run"
+                        class="flex items-center gap-2 px-5 py-3 mt-4 font-semibold text-white rounded-lg shadow-lg transition bg-[linear-gradient(to_right,#4776E6,#8E54E9)] hover:opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path d="M6.5 5.5v9l7-4.5-7-4.5z" />
+                    </svg>
+                    Executar
+                </button>
+            </form>
+            <div th:if="${output}" class="w-full">
+                <div
+                        role="alert"
+                        class="alert alert-vertical sm:alert-horizontal"
+                        th:classappend="${success} ? 'alert-success' : 'alert-error'"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24"
+                         class="stroke-current shrink-0 h-6 w-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <h3 class="font-bold" th:text="${success} ? 'Sucesso' : 'Erro'">Resultado</h3>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${output}" class="mockup-code w-full">
+                <pre data-prefix=">" th:text="${output}">...</pre>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+<script>
+    const editor = CodeMirror.fromTextArea(document.getElementById("swift-editor"), {
+        mode: "text/x-c++src", // "clike"
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        matchBrackets: true,
+        autofocus: true,
+        lineWrapping: true
+    });
+    const rawMarkdown = document.querySelector("#description-markdown").dataset.markdown;
+    document.querySelector("#description-markdown").innerHTML = marked.parse(rawMarkdown);
+</script>
+
+
+</body>
+</html>

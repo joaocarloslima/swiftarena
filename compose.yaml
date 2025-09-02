@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'postgres_swiftarena'
+    environment:
+      - 'POSTGRES_DB=swiftarena'
+      - 'POSTGRES_PASSWORD=swiftarena'
+      - 'POSTGRES_USER=swiftarena'
+    ports:
+      - '5432:5432'
