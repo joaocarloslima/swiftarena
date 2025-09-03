@@ -4,6 +4,7 @@ import br.com.fiap.swiftarena.submission.Submission;
 import br.com.fiap.swiftarena.submission.SubmissionRepository;
 import br.com.fiap.swiftarena.user.User;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class MissionEvaluationService {
+    private final int OUTPUT_MAX_LENGTH = 255;
 
     private static final String CONTAINER_PATH = "/app";
     private final TestCaseRepository testCaseRepository;
@@ -52,17 +54,17 @@ public class MissionEvaluationService {
     }
 
     private void saveSubmission(String code, User user, Mission mission, int attempt, EvaluationResult result) {
-        submissionRepository.save(
-                Submission.builder()
+        var output = StringUtils.truncate(result.output(), OUTPUT_MAX_LENGTH);
+        var submission = Submission.builder()
                     .user(user)
                     .mission(mission)
                     .attempt(attempt)
                     .passed(result.success())
-                    .output(result.output())
+                    .output(output)
                     .code(code)
                     .submittedAt(LocalDateTime.now())
-                    .build()
-        );
+                    .build();
+        submissionRepository.save(submission);
     }
 
     private EvaluationResult compile(Path submissionPath) throws IOException, InterruptedException {

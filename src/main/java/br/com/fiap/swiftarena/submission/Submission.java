@@ -28,6 +28,7 @@ public class Submission {
 
     private boolean passed;
 
+    @Column(columnDefinition = "TEXT")
     private String output;
 
     @Column(columnDefinition = "TEXT")

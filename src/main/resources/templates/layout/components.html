@@ -1,4 +1,4 @@
-<nav th:fragment="navbar" class="navbar bg-base-200 shadow-sm">
+<nav th:fragment="navbar(user)" class="navbar bg-base-200 shadow-sm">
     <div class="flex-1">
         <a class="btn btn-ghost text-xl">Swift Arena</a>
     </div>
@@ -8,7 +8,7 @@
                 <div class="w-10 rounded-full">
                     <img
                             alt="User Avatar"
-                            src="https://avatar.iran.liara.run/public" />
+                            th:src="${user.avatarUrl}" />
                 </div>
             </div>
             <ul

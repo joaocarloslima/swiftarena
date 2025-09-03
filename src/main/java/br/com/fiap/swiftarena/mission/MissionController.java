@@ -24,8 +24,9 @@ public class MissionController {
     private final SubmissionRepository submissionRepository;
 
     @GetMapping
-    public String showLessons(Model model) {
+    public String showLessons(Model model, @AuthenticationPrincipal User user) {
         model.addAttribute("lessons", lessonService.getAllLessons());
+        model.addAttribute("user", user);
         return "missions";
     }
 
@@ -36,6 +37,7 @@ public class MissionController {
         }
         model.addAttribute("lessons", lessonService.getAllLessons());
         model.addAttribute("missions", missionService.getMissionsStepByLessonId(lessonId, user));
+        model.addAttribute("user", user);
         model.addAttribute("activeLesson", lessonId);
         return "missions";
     }
@@ -51,6 +53,7 @@ public class MissionController {
         model.addAttribute("activeLesson", lessonId);
         model.addAttribute("mission", missionService.getMissionById(missionId));
         model.addAttribute("submissions", submissionRepository.findByUserAndMission(user, missionService.getMissionById(missionId)));
+        model.addAttribute("user", user);
         return "missions";
     }
 

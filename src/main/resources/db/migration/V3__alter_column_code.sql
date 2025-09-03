@@ -1,0 +1,5 @@
+ALTER TABLE submission
+ALTER COLUMN code TYPE TEXT;
+
+ALTER TABLE submission
+ALTER COLUMN output TYPE TEXT;

@@ -16,59 +16,38 @@
 
 <nav th:replace="~{layout/components :: navbar}"></nav>
 
-<main class="p-8">
-    <div class="card bg-base-100 w-96 shadow-sm">
-        <figure class="h-48 w-full">
+<main class="flex flex-wrap gap-4 p-8">
+    <div th:each="student : ${students}" class="card bg-base-100 w-96 shadow-sm">
+        <figure class="h-80 w-full">
             <img
-                    src="https://avatar.iran.liara.run/public"
-                    alt="aluno" />
+                    th:src="${'/avatar/' + student.avatarUrl}"
+                    alt="avatar do aluno" />
         </figure>
         <div class="card-body">
-            <h2 class="card-title">Fulano da Silva</h2>
-            <div class="radial-progress mx-auto" style="--value:70;" aria-valuenow="70" role="progressbar">70%</div>
-            <ul class="list bg-base-100 rounded-box shadow-md">
+            <h2 class="card-title" th:text="${student.name}"></h2>
+            <div class="radial-progress mx-auto" th:style="${'--value:' + student.totalScore }" th:aria-valuenow="${student.totalScore}" role="progressbar" th:text="${student.totalScore + '%'}"></div>
+            <div tabindex="0" class="collapse collapse-arrow bg-base-100 border-base-300 border">
+                <div class="collapse-title font-semibold">Missões</div>
+                <div class="collapse-content text-sm">
+                    <ul class="list bg-base-100 rounded-box shadow-md">
 
-                <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Tentativas por aula</li>
+                        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Tentativas por aula</li>
 
-                <li class="list-row">
-                    <div class="text-4xl font-thin opacity-30 tabular-nums">01</div>
-                    <div class="flex items-center gap-1">
-                        <div class="badge badge-success badge-sm"></div>
-                        <div class="badge badge-success badge-sm opacity-60"></div>
-                        <div class="badge badge-success badge-sm opacity-20"></div>
-                        <div class="badge badge-error badge-sm opacity-90"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                    </div>
+                        <li th:each="mission : ${student.missions}" class="list-row">
+                            <div class="text-4xl font-thin opacity-30 tabular-nums" th:text="${mission.lesson.number}"></div>
+                            <div class="flex items-center gap-1">
 
-                </li>
+                                <div
+                                        th:each="submission : ${mission.submissions}"
+                                        th:class="${'badge badge-sm opacity-' + submission.opacity + ' ' + submission.className}"
+                                </div>
+                            </div>
 
-                <li class="list-row">
-                    <div class="text-4xl font-thin opacity-30 tabular-nums">02</div>
-                    <div class="flex items-center gap-1">
-                        <div class="badge badge-success badge-sm"></div>
-                        <div class="badge badge-success badge-sm opacity-60"></div>
-                        <div class="badge badge-success badge-sm opacity-20"></div>
-                        <div class="badge badge-error badge-sm opacity-90"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                    </div>
+                        </li>
 
-                </li>
-
-                <li class="list-row">
-                    <div class="text-4xl font-thin opacity-30 tabular-nums">03</div>
-                    <div class="flex items-center gap-1">
-                        <div class="badge badge-success badge-sm"></div>
-                        <div class="badge badge-success badge-sm opacity-60"></div>
-                        <div class="badge badge-success badge-sm opacity-20"></div>
-                        <div class="badge badge-error badge-sm opacity-90"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                        <div class="badge badge-neutral badge-sm opacity-10"></div>
-                    </div>
-                </li>
-
-            </ul>
+                    </ul>
+                </div>
+            </div>
 
             <div class="card-actions justify-end">
                 <button class="btn btn-primary">Observações</button>
