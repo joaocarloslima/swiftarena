@@ -14,15 +14,57 @@
 </head>
 <body>
 
-<nav th:replace="~{layout/components :: navbar}"></nav>
-
+<nav class="navbar bg-base-200 shadow-sm">
+    <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Swift Arena</a>
+    </div>
+    <div class="flex-none">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img
+                            alt="User Avatar"
+                            th:src="${'/avatar/'+ user.avatarUrl}" />
+                </div>
+            </div>
+            <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li>
+                    <a class="justify-between" th:text="${user.name}"></a>
+                </li>
+                <li><a th:text="${user.email}"></a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <main class="flex flex-wrap gap-4 p-8">
-    <div th:each="student : ${students}" class="card bg-base-100 w-96 shadow-sm">
-        <figure class="h-80 w-full">
+    <div class="w-full">
+        <label class="input">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </g>
+            </svg>
+            <input type="search" class="grow" id="searchInput" placeholder="buscar por nome" onkeyup="filterStudents()" />
+        </label>
+    </div>
+
+    <div id="studentsContainer" class="flex flex-wrap gap-4 ">
+        <div th:each="student : ${students}" class="student-card card bg-base-100 w-96 shadow-sm" th:attr="data-name=${student.name.toLowerCase()}">
+            <figure class="h-80 w-full">
             <img
                     th:src="${'/avatar/' + student.avatarUrl}"
                     alt="avatar do aluno" />
-        </figure>
+            </figure>
         <div class="card-body">
             <h2 class="card-title" th:text="${student.name}"></h2>
             <div class="radial-progress mx-auto" th:style="${'--value:' + student.totalScore }" th:aria-valuenow="${student.totalScore}" role="progressbar" th:text="${student.totalScore + '%'}"></div>
@@ -39,7 +81,7 @@
 
                                 <div
                                         th:each="submission : ${mission.submissions}"
-                                        th:class="${'badge badge-sm opacity-' + submission.opacity + ' ' + submission.className}"
+                                        th:class="${'badge badge-sm opacity-' + submission.opacity + ' ' + submission.className}">
                                 </div>
                             </div>
 
@@ -54,10 +96,26 @@
             </div>
         </div>
     </div>
+    </div>
 
 
 </main>
 
+<script>
+    function filterStudents() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const cards = document.querySelectorAll(".student-card");
+
+        cards.forEach(card => {
+            const name = card.getAttribute("data-name");
+            if (name.includes(input)) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
