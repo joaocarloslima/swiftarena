@@ -92,14 +92,32 @@
             </div>
 
             <div class="card-actions justify-end">
-                <button class="btn btn-primary">Observações</button>
+                <button
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200"
+                        onclick="openModal(this)"
+                        th:data-student-id="${student.id}"
+                >
+                    Observações
+                </button>
             </div>
         </div>
     </div>
     </div>
-
-
 </main>
+
+<dialog id="obs_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Observações do Aluno</h3>
+        <fieldset class="fieldset py-4">
+            <textarea id="textarea-obs" class="textarea h-48 w-full" ></textarea>
+        </fieldset>
+        <div class="modal-action">
+            <form method="dialog">
+                <button onclick="saveObservation()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200">Salvar</button>
+            </form>
+        </div>
+    </div>
+</dialog>
 
 <script>
     function filterStudents() {
@@ -113,6 +131,31 @@
             } else {
                 card.style.display = "none";
             }
+        });
+    }
+
+    function openModal(button) {
+        const studentId = button.getAttribute("data-student-id");
+        const modal = document.getElementById("obs_modal");
+        modal.showModal();
+        const textarea = document.getElementById("textarea-obs");
+        textarea.setAttribute("data-student-id", studentId);
+        fetch('/obs/' + studentId )
+            .then(response => response.text())
+            .then(data => {
+                textarea.value = data;
+            });
+    }
+
+    function saveObservation() {
+        const textarea = document.getElementById("textarea-obs");
+        const studentId = textarea.getAttribute("data-student-id");
+        fetch('/obs/' + studentId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ observation: textarea.value }),
         });
     }
 </script>
