@@ -15,7 +15,10 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/adm").hasRole("MENTOR")
+                        .anyRequest().authenticated()
+                )
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/missions", true)

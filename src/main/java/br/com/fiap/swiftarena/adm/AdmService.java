@@ -25,7 +25,7 @@ public class AdmService {
 
     public List<StudentCardDto> getStudentCards() {
         var studentCards = new ArrayList<StudentCardDto>();
-        var students = userRepository.findAllByRoleOrderByName(Role.STUDENT);
+        var students = userRepository.findAllByRoleOrderByName(Role.ROLE_STUDENT);
         for (var student : students) {
             var studentCard = new StudentCardDto();
             studentCard.setId(student.getId());
