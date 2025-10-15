@@ -34,6 +34,7 @@
                     <a class="justify-between" th:text="${user.name}"></a>
                 </li>
                 <li><a th:text="${user.email}"></a></li>
+                <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/lessons">Exercícios</a></li>
                 <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/adm">Alunos</a></li>
                 <li><a href="/logout">Logout</a></li>
             </ul>

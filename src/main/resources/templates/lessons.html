@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography" defer></script>
+    <meta charset="UTF-8">
+    <title>Swift Arena | Lessons</title>
+</head>
+<body>
+
+<nav class="navbar bg-base-200 shadow-sm">
+    <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Swift Arena</a>
+    </div>
+    <div class="flex-none">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img
+                            alt="User Avatar"
+                            th:src="${'/avatar/'+ user.avatarUrl}" />
+                </div>
+            </div>
+            <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li>
+                    <a class="justify-between" th:text="${user.name}"></a>
+                </li>
+                <li><a th:text="${user.email}"></a></li>
+                <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/lessons">Exercícios</a></li>
+                <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/adm">Alunos</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<main class="flex flex-wrap gap-4 p-8">
+    <div class="w-full flex justify-between items-center mb-4">
+        <label class="input flex-1 mr-4">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </g>
+            </svg>
+            <input type="search" class="grow" id="searchInput" placeholder="buscar por missão" onkeyup="filterMissions()" />
+        </label>
+        <a href="/lessons/form" class="btn btn-primary flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Cadastrar missão
+        </a>
+    </div>
+
+    <!-- Missions Table -->
+    <div class="w-full">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Aula</th>
+                        <th>Challenge</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="missionsTableBody">
+                    <tr th:each="mission : ${missions}" class="mission-row">
+                        <td th:text="${mission.id}"></td>
+                        <td th:text="${mission.title}"></td>
+                        <td th:text="${mission.lesson.id}"></td>
+                        <td>
+                            <span th:if="${mission.challenge}" class="badge badge-success">Challenge</span>
+                            <span th:unless="${mission.challenge}" class="badge badge-neutral">Normal</span>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <!-- View button -->
+                                <a th:href="@{'/missions/lessons/' + ${mission.lesson.id} + '/' + ${mission.id}}"
+                                   class="btn btn-ghost btn-sm" title="Visualizar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+
+                                <!-- Edit button -->
+                                <a th:href="@{'/lessons/form?id=' + ${mission.id}}"
+                                   class="btn btn-warning btn-sm" title="Editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+
+                                <!-- Delete button -->
+                                <button class="btn btn-error btn-sm"
+
+                                        title="Excluir">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <dialog id="deleteModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Confirmar Exclusão</h3>
+            <p class="py-4">Tem certeza que deseja excluir a missão "<span id="missionTitle"></span>"?</p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Cancelar</button>
+                </form>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button type="submit" class="btn btn-error">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+<script>
+function filterMissions() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('.mission-row');
+
+    rows.forEach(row => {
+        const title = row.cells[1].textContent.toLowerCase();
+        if (title.includes(searchInput)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function confirmDelete(missionId, missionTitle) {
+    document.getElementById('missionTitle').textContent = missionTitle;
+    document.getElementById('deleteForm').action = '/lessons/' + missionId;
+    document.getElementById('deleteModal').showModal();
+}
+</script>
+
+</main>
+
+</body>
+</html>

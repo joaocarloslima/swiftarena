@@ -17,6 +17,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/adm").hasRole("MENTOR")
+                        .requestMatchers("/lessons").hasRole("MENTOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login

@@ -1,5 +1,7 @@
 package br.com.fiap.swiftarena.adm;
 
+import br.com.fiap.swiftarena.mission.Mission;
+import br.com.fiap.swiftarena.mission.MissionRequest;
 import br.com.fiap.swiftarena.user.Role;
 import br.com.fiap.swiftarena.user.User;
 import br.com.fiap.swiftarena.user.UserRepository;
@@ -46,6 +48,26 @@ public class AdmController {
         );
         user.setObservation(observation.observation);
         userRepository.save(user);
+    }
+
+    @GetMapping("lessons")
+    public String lessons(Model model, @AuthenticationPrincipal User user){
+        model.addAttribute("missions", admService.getAllMissions());
+        model.addAttribute("user", user);
+        return "lessons";
+    }
+
+    @GetMapping("lessons/form")
+    public String lessonsForm(Model model, @AuthenticationPrincipal User user, Mission mission){
+        model.addAttribute("user", user);
+        model.addAttribute("mission", mission);
+        return "lessons-form";
+    }
+
+    @PostMapping("lessons/form")
+    public String saveLesson(MissionRequest missionRequest) {
+        admService.saveMission(missionRequest);
+        return "redirect:/lessons";
     }
 
 }

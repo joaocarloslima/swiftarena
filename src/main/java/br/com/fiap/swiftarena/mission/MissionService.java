@@ -45,4 +45,8 @@ public class MissionService {
             );
         }).toList();
     }
+
+    public List<Mission> getAllMissions() {
+        return missionRepository.findAll();
+    }
 }

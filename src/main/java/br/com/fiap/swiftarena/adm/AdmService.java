@@ -1,26 +1,38 @@
 package br.com.fiap.swiftarena.adm;
 
 import br.com.fiap.swiftarena.lesson.LessonRepository;
+import br.com.fiap.swiftarena.lesson.LessonService;
+import br.com.fiap.swiftarena.mission.Mission;
+import br.com.fiap.swiftarena.mission.MissionRequest;
+import br.com.fiap.swiftarena.mission.MissionService;
+import br.com.fiap.swiftarena.mission.TestCase;
 import br.com.fiap.swiftarena.submission.Submission;
 import br.com.fiap.swiftarena.submission.SubmissionRepository;
 import br.com.fiap.swiftarena.user.Role;
 import br.com.fiap.swiftarena.user.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class AdmService {
 
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final SubmissionRepository submissionRepository;
+    private final LessonService lessonService;
+    private final MissionService missionService;
 
-    public AdmService(UserRepository userRepository, LessonRepository lessonRepository, SubmissionRepository submissionRepository) {
+    public AdmService(UserRepository userRepository, LessonRepository lessonRepository, SubmissionRepository submissionRepository, LessonService lessonService, MissionService missionService) {
         this.userRepository = userRepository;
         this.lessonRepository = lessonRepository;
         this.submissionRepository = submissionRepository;
+        this.lessonService = lessonService;
+        this.missionService = missionService;
     }
 
     public List<StudentCardDto> getStudentCards() {
@@ -95,4 +107,30 @@ public class AdmService {
         return  scorePercent;
     }
 
+    @Transactional
+    public void saveMission(MissionRequest missionRequest) {
+        log.info("Saving mission" + missionRequest);
+        var lesson = lessonService.getLessonById(missionRequest.lessonId());
+        var mission = new Mission();
+        mission.setTitle(missionRequest.title());
+        mission.setChallenge(missionRequest.challenge());
+        mission.setLesson(lesson);
+        mission.setDescriptionMarkdown(missionRequest.descriptionMarkdown());
+        if (missionRequest.testCases() != null && !missionRequest.testCases().isEmpty()) {
+            mission.setTests(missionRequest.testCases().stream().map(testCaseRequest -> {
+                var testCase = new TestCase();
+                testCase.setInput(testCaseRequest.getInput());
+                testCase.setExpectedOutput(testCaseRequest.getExpectedOutput());
+                testCase.setMission(mission);
+                return testCase;
+            }).toList());
+        }
+        lesson.getMissions().add(mission);
+        lessonRepository.save(lesson);
+
+    }
+
+    public List<Mission> getAllMissions() {
+        return missionService.getAllMissions();
+    }
 }

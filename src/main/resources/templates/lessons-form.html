@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography" defer></script>
+    <meta charset="UTF-8">
+    <title>Swift Arena | Nova Missão</title>
+</head>
+<body>
+
+<nav class="navbar bg-base-200 shadow-sm">
+    <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Swift Arena</a>
+    </div>
+    <div class="flex-none">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img
+                            alt="User Avatar"
+                            th:src="${'/avatar/'+ user.avatarUrl}" />
+                </div>
+            </div>
+            <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li>
+                    <a class="justify-between" th:text="${user.name}"></a>
+                </li>
+                <li><a th:text="${user.email}"></a></li>
+                <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/lessons">Exercícios</a></li>
+                <li th:if="${user.role.toString() == 'ROLE_MENTOR'}"><a href="/adm">Alunos</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container mx-auto p-8 max-w-4xl">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-6">
+                Criar Nova Missão
+            </h2>
+
+            <!-- Mensagens de feedback -->
+            <div th:if="${success}" class="alert alert-success mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span th:text="${success}"></span>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/lessons/form}" method="post" th:object="${mission}">
+                <!-- Número da Aula -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold text-primary">Número da Aula</span>
+                    </label>
+                    <select name="lessonId" class="select select-bordered w-full" required>
+                        <option disabled selected>Selecione a aula</option>
+                        <option value="1">Aula 1</option>
+                        <option value="2">Aula 2</option>
+                        <option value="3">Aula 3</option>
+                        <option value="4">Aula 4</option>
+                        <option value="5">Aula 5</option>
+                    </select>
+                </div>
+
+                <!-- Título -->
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold text-primary">Título da Missão</span>
+                    </label>
+                    <input type="text" th:field="*{title}" class="input input-bordered w-full"
+                           placeholder="Digite o título da missão" required />
+                </div>
+
+                <!-- Challenge Toggle -->
+                <div class="form-control mb-4">
+                    <label class="label cursor-pointer justify-start gap-4">
+                        <span class="label-text font-semibold text-primary">Challenge</span>
+                        <input type="checkbox" th:field="*{challenge}" class="toggle toggle-primary" />
+                    </label>
+                    <div class="label">
+                        <span class="label-text-alt">Marque se esta missão é um desafio especial</span>
+                    </div>
+                </div>
+
+                <!-- Enunciado em Markdown -->
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold text-primary">Enunciado (Markdown)</span>
+                    </label>
+
+
+                    <div id="editor-container">
+                        <textarea th:field="*{descriptionMarkdown}"
+                                  id="markdown-editor"
+                                  class="textarea textarea-bordered w-full h-64"
+                                  placeholder="Digite o enunciado da missão em Markdown..."
+                                  required></textarea>
+                    </div>
+
+
+                </div>
+
+                <!-- Test Cases -->
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold text-primary">Test Cases</span>
+                    </label>
+                    <div id="test-cases-list"></div>
+                    <button type="button" class="btn btn-outline btn-sm mt-2" onclick="addTestCase()">Adicionar Test Case</button>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card-actions justify-end gap-2">
+                    <a href="/lessons" class="btn btn-ghost">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Criar Missão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    let testCaseIndex = 0;
+    function addTestCase() {
+        const container = document.getElementById('test-cases-list');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2 mb-2';
+        div.innerHTML = `
+        <input name="testCases[${testCaseIndex}].input" class="input input-bordered" placeholder="Input" required />
+        <input name="testCases[${testCaseIndex}].expectedOutput" class="input input-bordered" placeholder="Expected Output" required />
+        <button type="button" class="btn btn-error btn-xs" onclick="this.parentElement.remove()">Remover</button>
+    `;
+        container.appendChild(div);
+        testCaseIndex++;
+    }
+</script>
+
+</body>
+</html>
