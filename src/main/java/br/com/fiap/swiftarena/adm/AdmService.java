@@ -111,26 +111,50 @@ public class AdmService {
     public void saveMission(MissionRequest missionRequest) {
         log.info("Saving mission" + missionRequest);
         var lesson = lessonService.getLessonById(missionRequest.lessonId());
-        var mission = new Mission();
-        mission.setTitle(missionRequest.title());
-        mission.setChallenge(missionRequest.challenge());
-        mission.setLesson(lesson);
-        mission.setDescriptionMarkdown(missionRequest.descriptionMarkdown());
+
+        Mission mission;
+        if (missionRequest.id() != null) {
+            // Update existing mission
+            mission = missionService.getMissionById(missionRequest.id());
+            mission.setTitle(missionRequest.title());
+            mission.setChallenge(missionRequest.challenge());
+            mission.setLesson(lesson);
+            mission.setDescriptionMarkdown(missionRequest.descriptionMarkdown());
+
+            // Clear existing test cases and add new ones
+            mission.getTests().clear();
+        } else {
+            // Create new mission
+            mission = new Mission();
+            mission.setTitle(missionRequest.title());
+            mission.setChallenge(missionRequest.challenge());
+            mission.setLesson(lesson);
+            mission.setDescriptionMarkdown(missionRequest.descriptionMarkdown());
+        }
+
         if (missionRequest.testCases() != null && !missionRequest.testCases().isEmpty()) {
-            mission.setTests(missionRequest.testCases().stream().map(testCaseRequest -> {
+            var testCases = missionRequest.testCases().stream().map(testCaseRequest -> {
                 var testCase = new TestCase();
                 testCase.setInput(testCaseRequest.getInput());
                 testCase.setExpectedOutput(testCaseRequest.getExpectedOutput());
                 testCase.setMission(mission);
                 return testCase;
-            }).toList());
+            }).toList();
+            mission.setTests(testCases);
         }
-        lesson.getMissions().add(mission);
+
+        if (missionRequest.id() == null) {
+            lesson.getMissions().add(mission);
+        }
         lessonRepository.save(lesson);
 
     }
 
     public List<Mission> getAllMissions() {
         return missionService.getAllMissions();
+    }
+
+    public Mission getMissionById(Long id) {
+        return missionService.getMissionById(id);
     }
 }

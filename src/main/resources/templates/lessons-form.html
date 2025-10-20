@@ -46,7 +46,7 @@
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
             <h2 class="card-title text-2xl mb-6">
-                Criar Nova Missão
+                <span th:text="${mission.id != null ? 'Editar Missão' : 'Criar Nova Missão'}"></span>
             </h2>
 
             <!-- Mensagens de feedback -->
@@ -65,18 +65,21 @@
             </div>
 
             <form th:action="@{/lessons/form}" method="post" th:object="${mission}">
+                <!-- Hidden field for mission ID when editing -->
+                <input type="hidden" th:field="*{id}" th:if="${mission.id != null}" />
+
                 <!-- Número da Aula -->
                 <div class="form-control mb-4">
                     <label class="label">
                         <span class="label-text font-semibold text-primary">Número da Aula</span>
                     </label>
                     <select name="lessonId" class="select select-bordered w-full" required>
-                        <option disabled selected>Selecione a aula</option>
-                        <option value="1">Aula 1</option>
-                        <option value="2">Aula 2</option>
-                        <option value="3">Aula 3</option>
-                        <option value="4">Aula 4</option>
-                        <option value="5">Aula 5</option>
+                        <option disabled th:selected="${mission.lesson == null}">Selecione a aula</option>
+                        <option value="1" th:selected="${mission.lesson != null && mission.lesson.id == 1}">Aula 1</option>
+                        <option value="2" th:selected="${mission.lesson != null && mission.lesson.id == 2}">Aula 2</option>
+                        <option value="3" th:selected="${mission.lesson != null && mission.lesson.id == 3}">Aula 3</option>
+                        <option value="4" th:selected="${mission.lesson != null && mission.lesson.id == 4}">Aula 4</option>
+                        <option value="5" th:selected="${mission.lesson != null && mission.lesson.id == 5}">Aula 5</option>
                     </select>
                 </div>
 
@@ -134,7 +137,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Criar Missão
+                        <span th:text="${mission.id != null ? 'Atualizar Missão' : 'Criar Missão'}"></span>
                     </button>
                 </div>
             </form>
@@ -142,15 +145,34 @@
     </div>
 </main>
 
-<script>
+<script th:inline="javascript">
     let testCaseIndex = 0;
-    function addTestCase() {
+
+    // Load existing test cases if editing - using properly serialized JSON
+    const testCasesJson = /*[[${testCasesJson}]]*/ '[]';
+    const existingTests = JSON.parse(testCasesJson);
+
+    console.log('Existing tests:', existingTests);
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (existingTests && existingTests.length > 0) {
+            existingTests.forEach(function(test) {
+                console.log('Loading test case:', test);
+                addTestCase(test.input || '', test.expectedOutput || '');
+            });
+        }
+    });
+
+    function addTestCase(inputValue = '', outputValue = '') {
         const container = document.getElementById('test-cases-list');
         const div = document.createElement('div');
         div.className = 'flex gap-2 mb-2';
+        // Escape the values to prevent XSS and handle special characters
+        const escapedInput = String(inputValue).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const escapedOutput = String(outputValue).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         div.innerHTML = `
-        <input name="testCases[${testCaseIndex}].input" class="input input-bordered" placeholder="Input" required />
-        <input name="testCases[${testCaseIndex}].expectedOutput" class="input input-bordered" placeholder="Expected Output" required />
+        <input name="testCases[${testCaseIndex}].input" class="input input-bordered" placeholder="Input" value="${escapedInput}" required />
+        <input name="testCases[${testCaseIndex}].expectedOutput" class="input input-bordered" placeholder="Expected Output" value="${escapedOutput}" required />
         <button type="button" class="btn btn-error btn-xs" onclick="this.parentElement.remove()">Remover</button>
     `;
         container.appendChild(div);

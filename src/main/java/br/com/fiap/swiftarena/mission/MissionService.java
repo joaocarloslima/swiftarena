@@ -23,7 +23,7 @@ public class MissionService {
     }
 
     public Mission getMissionById(Long missionId) {
-        return missionRepository.findById(missionId).orElseThrow(() -> new RuntimeException("Mission not found"));
+        return missionRepository.findByIdWithTests(missionId).orElseThrow(() -> new RuntimeException("Mission not found"));
     }
 
     public int getNextAttemptNumber(User user, Mission mission) {
