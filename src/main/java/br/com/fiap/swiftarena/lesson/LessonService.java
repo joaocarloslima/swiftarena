@@ -17,7 +17,7 @@ public class LessonService {
     }
 
     public List<Lesson> getAllLessons() {
-        return lessonRepository.findAll();
+        return lessonRepository.findAllByOrderByNumber();
     }
 
     public boolean isLessonActive(Long lessonId) {

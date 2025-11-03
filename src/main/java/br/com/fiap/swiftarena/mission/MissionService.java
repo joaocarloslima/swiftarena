@@ -19,7 +19,7 @@ public class MissionService {
     }
 
     public List<Mission> getMissionsByLessonId(Long lessonId) {
-        return missionRepository.findByLesson(Lesson.builder().id(lessonId).build());
+        return missionRepository.findByLessonOrderById(Lesson.builder().id(lessonId).build());
     }
 
     public Mission getMissionById(Long missionId) {

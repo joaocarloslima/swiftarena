@@ -13,4 +13,6 @@ public interface MissionRepository extends JpaRepository<Mission, Long> {
 
     @Query("SELECT m FROM Mission m LEFT JOIN FETCH m.tests WHERE m.id = :id")
     Optional<Mission> findByIdWithTests(@Param("id") Long id);
+
+    List<Mission> findByLessonOrderById(Lesson build);
 }
