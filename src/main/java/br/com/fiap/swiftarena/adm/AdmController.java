@@ -29,7 +29,7 @@ public class AdmController {
         this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/adm")
+    @GetMapping("/adm2")
     public String adm(Model model, @AuthenticationPrincipal User user) {
         model.addAttribute("students", admService.getStudentCards());
         model.addAttribute("user", user);
