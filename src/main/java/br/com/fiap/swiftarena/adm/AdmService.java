@@ -49,27 +49,27 @@ public class AdmService {
             for (var lesson : lessons) {
                 var missionCard = new MissionCardDto();
                 missionCard.setLesson(lesson);
-                var missions = lesson.getMissions();
+                //var missions = lesson.getMissions();
                 var submissionCards = new ArrayList<SubmissionCardDto>();
-                for (var mission: missions){
-                    var submissions = submissionRepository.findByUserAndMission(student, mission);
-                    var submissionCard = new SubmissionCardDto();
-                    submissionCard.setAttempts(submissions.size());
-                    submissionCard.setPassed(submissions.stream().anyMatch(Submission::isPassed));
-                    submissionCard.setClassName("badge-neutral");
-                    var opacity = 30;
-                    if(!submissionCard.isPassed() && submissionCard.getAttempts()>0) {
-                        submissionCard.setClassName("badge-error");
-                        opacity = 90;
-                    }
-                    if (submissionCard.getAttempts() > 0 && submissionCard.isPassed()){
-                        opacity = 100 - (submissionCard.getAttempts() - 1) * 20;
-                        submissionCard.setClassName("badge-success");
-                    }
-                    if (opacity < 20) opacity = 20;
-                    submissionCard.setOpacity(opacity);
-                    submissionCards.add(submissionCard);
-                }
+//                for (var mission: missions){
+//                    var submissions = submissionRepository.findByUserAndMission(student, mission);
+//                    var submissionCard = new SubmissionCardDto();
+//                    submissionCard.setAttempts(submissions.size());
+//                    submissionCard.setPassed(submissions.stream().anyMatch(Submission::isPassed));
+//                    submissionCard.setClassName("badge-neutral");
+//                    var opacity = 30;
+//                    if(!submissionCard.isPassed() && submissionCard.getAttempts()>0) {
+//                        submissionCard.setClassName("badge-error");
+//                        opacity = 90;
+//                    }
+//                    if (submissionCard.getAttempts() > 0 && submissionCard.isPassed()){
+//                        opacity = 100 - (submissionCard.getAttempts() - 1) * 20;
+//                        submissionCard.setClassName("badge-success");
+//                    }
+//                    if (opacity < 20) opacity = 20;
+//                    submissionCard.setOpacity(opacity);
+//                    submissionCards.add(submissionCard);
+//                }
                 missionCard.setSubmissions(submissionCards);
                 missionCards.add(missionCard);
             }
